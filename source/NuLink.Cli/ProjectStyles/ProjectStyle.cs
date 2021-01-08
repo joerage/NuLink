@@ -24,7 +24,7 @@ namespace NuLink.Cli.ProjectStyles
 
         protected XElement ProjectXml { get; }
 
-        public static ProjectStyle Create(IUserInterface ui, ProjectAnalyzer project)
+        public static ProjectStyle Create(IUserInterface ui, ProjectAnalyzer project, string consumerObjPath)
         {
             var projectXml = XElement.Load(project.ProjectFile.Path);
 
@@ -33,7 +33,7 @@ namespace NuLink.Cli.ProjectStyles
 
             if (isSdkStyle && !isOldStyle)
             {
-                return new SdkProjectStyle(ui, project, projectXml);
+                return new SdkProjectStyle(ui, project, projectXml, consumerObjPath);
             }
 
             if (isOldStyle && !isSdkStyle)

@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using Murphy.SymbolicLink;
 
 namespace NuLink.Cli
 {
@@ -22,7 +20,7 @@ namespace NuLink.Cli
 
             var requestedPackage = GetPackageInfo();
             var status = requestedPackage.CheckStatus();
-            var linkTargetPath = Path.Combine(Path.GetDirectoryName(options.LocalProjectPath), "bin", "Debug");
+            var linkTargetPath = options.LocalProjectOutputPath;
 
             ValidateOperation();
             PerformOperation();
@@ -34,7 +32,7 @@ namespace NuLink.Cli
             PackageReferenceInfo GetPackageInfo()
             {
                 var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
-                var referenceLoader = new PackageReferenceLoader(_ui);
+                var referenceLoader = new PackageReferenceLoader(_ui, options.ConsumerObjPath);
                 var allPackages = referenceLoader.LoadPackageReferences(allProjects);
                 var package = allPackages.FirstOrDefault(p => p.PackageId == options.PackageId);
                 return package ?? throw new Exception($"Error: Package not referenced: {options.PackageId}");

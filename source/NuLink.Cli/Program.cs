@@ -8,6 +8,22 @@ namespace NuLink.Cli
 {
     class Program
     {
+        /*
+         * Samples
+         * link   -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
+         *        -p Fidalgo.DurableTask 
+         *        -l C:\Users\jraj\source\repos\azure-lab-services\Packages\out\bin\Debug\Microsoft.LabServices.DurableTask 
+         *        -o C:\Users\jraj\source\repos\azure-devtest-center\out\obj
+         *        
+         * unlink -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
+         *        -p Fidalgo.DurableTask 
+         *        -o C:\Users\jraj\source\repos\azure-devtest-center\out\obj
+         *        
+         * status -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
+         *        -p Fidalgo.DurableTask 
+         *        -o C:\Users\jraj\source\repos\azure-devtest-center\out\obj    
+         */
+
         static int Main(string[] args)
         {
             var rootCommand = BuildCommandLine();
@@ -28,6 +44,11 @@ namespace NuLink.Cli
                 Name = "project-path",
                 Arity = ArgumentArity.ExactlyOne
             });
+            var objOption = new Option(new[] { "--obj", "-o" }, HelpText.ObjOption, new Argument<string>()
+            {
+                Name = "obj-path",
+                Arity = ArgumentArity.ZeroOrOne
+            });
             var dryRunOption = new Option(new[] { "--dry-run", "-d" }, HelpText.DryRunOption, new Argument<bool>() {
                 Name = "on/off",
                 Arity = ArgumentArity.ZeroOrOne
@@ -41,27 +62,31 @@ namespace NuLink.Cli
                 new Command("status", HelpText.StatusCommand, handler: HandleStatus()) {
                     consumerOption,
                     packageOption,
+                    objOption,
                     quietOption
                 },
                 new Command("link", HelpText.LinkCommand, handler: HandleLink()) {
                     consumerOption,
                     packageOption,
                     localProjectOption,
+                    objOption,
                     dryRunOption
                 },
                 new Command("unlink", HelpText.UnlinkCommand, handler: HandleUnlink()) {
                     consumerOption,
                     packageOption,
+                    objOption,
                     dryRunOption
                 }
             };
         }
 
         private static ICommandHandler HandleStatus() => 
-            CommandHandler.Create<string, string, bool>((consumer, package, quiet) => {
+            CommandHandler.Create<string, string, string, bool>((consumer, package, obj, quiet) => {
                 var options = new NuLinkCommandOptions(
                     ValidateConsumerProject(consumer), 
                     package,
+                    consumerObjPath: obj,
                     bareUI: quiet);
                 return ExecuteCommand(
                     "status", 
@@ -70,23 +95,26 @@ namespace NuLink.Cli
             });
 
         private static ICommandHandler HandleLink() => 
-            CommandHandler.Create<string, string, string, bool>((consumer, package, local, dryRun) => {
+            CommandHandler.Create<string, string, string, string, bool>((consumer, package, local, obj, dryRun) => {
                 var options = new NuLinkCommandOptions(
                     ValidateConsumerProject(consumer), 
                     package,
+                    consumerObjPath: obj,
                     localProjectPath: ValidateTargetProject(local),
+
                     dryRun: dryRun);
                 return ExecuteCommand(
                     "link", 
                     options, 
-                    options.ConsumerProjectPath != null && options.LocalProjectPath != null && options.PackageId != null);
+                    options.ConsumerProjectPath != null && options.LocalProjectOutputPath != null && options.PackageId != null);
             });
 
         private static ICommandHandler HandleUnlink() => 
-            CommandHandler.Create<string, string, bool>((consumer, package, dryRun) => {
+            CommandHandler.Create<string, string, string, bool>((consumer, package, obj, dryRun) => {
                 var options = new NuLinkCommandOptions(
                     ValidateConsumerProject(consumer), 
                     package,
+                    consumerObjPath: obj,
                     dryRun: dryRun);
                 return ExecuteCommand(
                     "unlink", 
@@ -147,7 +175,7 @@ namespace NuLink.Cli
 
         private static string ValidateTargetProject(string filePath)
         {
-            if (File.Exists(filePath))
+            if (Directory.Exists(filePath))
             {
                 return filePath;
             }
@@ -187,7 +215,9 @@ namespace NuLink.Cli
                 "Package id (default: all packages in consumer project/solution)";
             public const string LocalProjectOption = 
                 "Full path to package .csproj in local file system";
-            public const string DryRunOption = 
+            public const string ObjOption = 
+                "If specified, location for the commong obj folder of all consumer projects (i.e <output>/obj/<projectName>)";
+            public const string DryRunOption =
                 "If specified, list intended actions without executing them";
             public const string QuietOption = 
                 "If specified, suppresses all output except data (useful for scripting)";

@@ -12,9 +12,12 @@ namespace NuLink.Cli.ProjectStyles
 {
     public class SdkProjectStyle : ProjectStyle
     {
-        public SdkProjectStyle(IUserInterface ui, ProjectAnalyzer project, XElement projextXml)
+        private string _consumerObjPath;
+
+        public SdkProjectStyle(IUserInterface ui, ProjectAnalyzer project, XElement projextXml, string consumerObjPath)
             : base(ui, project, projextXml)
         {
+            _consumerObjPath = consumerObjPath;
         }
 
         public override IEnumerable<PackageReferenceInfo> LoadPackageReferences()
@@ -79,11 +82,24 @@ namespace NuLink.Cli.ProjectStyles
     
         private string GetNuGetPropsFilePath()
         {
-            var filePath = Path.Combine(
-                Path.GetDirectoryName(Project.ProjectFile.Path),
-                "obj",
-                $"{Path.GetFileName(Project.ProjectFile.Path)}.nuget.g.props");
-    
+            var filePath = "";
+
+            if (string.IsNullOrEmpty(_consumerObjPath))
+            {
+                filePath = Path.Combine(
+                    Path.GetDirectoryName(Project.ProjectFile.Path),
+                    "obj",
+                    $"{Path.GetFileName(Project.ProjectFile.Path)}.nuget.g.props");
+            }
+            else
+            {
+                //var commonOutputFolder = @"C:\Users\jraj\source\repos\azure-devtest-center\out";
+                filePath = Path.Combine(
+                    _consumerObjPath,
+                    Project.ProjectInSolution.ProjectName,
+                    $"{Path.GetFileName(Project.ProjectFile.Path)}.nuget.g.props");
+            }
+            
             return filePath;
         }
 
