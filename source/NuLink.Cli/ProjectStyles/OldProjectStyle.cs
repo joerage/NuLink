@@ -17,7 +17,7 @@ namespace NuLink.Cli.ProjectStyles
         {
         }
 
-        public override IEnumerable<PackageReferenceInfo> LoadPackageReferences()
+        public override IEnumerable<PackageReferenceInfo> LoadPackageReferences(ProjectAnalyzer projectAnalyzer)
         {
             var projectDirectory = Path.GetDirectoryName(Project.ProjectFile.Path);
             var allHintPaths = FindReferenceHintPaths();

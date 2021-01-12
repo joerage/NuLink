@@ -7,46 +7,45 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Buildalyzer;
+using NuGet.Configuration;
 
 namespace NuLink.Cli.ProjectStyles
 {
     public class SdkProjectStyle : ProjectStyle
     {
-        private string _consumerObjPath;
-
-        public SdkProjectStyle(IUserInterface ui, ProjectAnalyzer project, XElement projextXml, string consumerObjPath)
+        public SdkProjectStyle(IUserInterface ui, ProjectAnalyzer project, XElement projextXml)
             : base(ui, project, projextXml)
         {
-            _consumerObjPath = consumerObjPath;
         }
 
-        public override IEnumerable<PackageReferenceInfo> LoadPackageReferences()
+        public override IEnumerable<PackageReferenceInfo> LoadPackageReferences(ProjectAnalyzer projectAnalyzer)
         {
             var packagesRootFolder = GetPackagesRootFolder();
-            var packages = GetPackages();
+            return GetPackages();
     
-            return packages.Where(p => p != null);
-                            
             IEnumerable<PackageReferenceInfo> GetPackages()
             {
-                var elements = ProjectXml.XPathSelectElements("//PackageReference");
-                
-                return elements.Select(e => {
-                    var packageId = e.Attribute("Include")?.Value;
-                    var version = e.Attribute("Version")?.Value;
-    
-                    if (!String.IsNullOrWhiteSpace(packageId) && !String.IsNullOrWhiteSpace(version))
+                AnalyzerResults project = projectAnalyzer.Build();
+
+                var packageReferenceInfo = new List<PackageReferenceInfo>();
+
+                foreach(var result in project.Results)
+                {
+                    packageReferenceInfo.AddRange(result.PackageReferences.Select(packageReference =>
                     {
+                        var packageId = packageReference.Key;
+                        var version = packageReference.Value.First().Value;
+
                         var folder = GetPackageFolder(packageId, version);
                         return new PackageReferenceInfo(
-                            packageId, 
-                            version, 
+                            packageId,
+                            version,
                             rootFolderPath: folder,
                             libSubfolderPath: "lib");
-                    }
-    
-                    return null;
-                });
+                    }));
+                }
+
+                return packageReferenceInfo;
             }
     
             string GetPackageFolder(string packageId, string version)
@@ -59,48 +58,11 @@ namespace NuLink.Cli.ProjectStyles
                 return packageFolderPath;
             }
         }
-    
+
         private string GetPackagesRootFolder()
         {
-            var ns = new XmlNamespaceManager(new NameTable());
-            ns.AddNamespace("msb", MsbuildNamespaceUri);
-    
-            var nugetPropsXml = XElement.Load(GetNuGetPropsFilePath());
-            var result = 
-                nugetPropsXml.XPathSelectElement("//msb:NuGetPackageRoot", ns)?.Value
-                ?? throw new Exception("Could not find NuGetPackageRoot property");
-    
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var userProfilePath = Environment.GetEnvironmentVariable("UserProfile");
-                UI.ReportLow(() => $"Detected Windows: $(UserProfile)=[{userProfilePath}]");
-                result = result.Replace("$(UserProfile)", userProfilePath, StringComparison.InvariantCultureIgnoreCase);
-            }
-                
-            return result;
-        }
-    
-        private string GetNuGetPropsFilePath()
-        {
-            var filePath = "";
-
-            if (string.IsNullOrEmpty(_consumerObjPath))
-            {
-                filePath = Path.Combine(
-                    Path.GetDirectoryName(Project.ProjectFile.Path),
-                    "obj",
-                    $"{Path.GetFileName(Project.ProjectFile.Path)}.nuget.g.props");
-            }
-            else
-            {
-                //var commonOutputFolder = @"C:\Users\jraj\source\repos\azure-devtest-center\out";
-                filePath = Path.Combine(
-                    _consumerObjPath,
-                    Project.ProjectInSolution.ProjectName,
-                    $"{Path.GetFileName(Project.ProjectFile.Path)}.nuget.g.props");
-            }
-            
-            return filePath;
+            var settings = Settings.LoadDefaultSettings(null);
+            return SettingsUtility.GetGlobalPackagesFolder(settings);
         }
 
         public static bool IsSdkStyleProject(XElement projectXml)

@@ -32,7 +32,7 @@ namespace NuLink.Cli
             PackageReferenceInfo GetPackageInfo()
             {
                 var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
-                var referenceLoader = new PackageReferenceLoader(_ui, options.ConsumerObjPath);
+                var referenceLoader = new PackageReferenceLoader(_ui);
                 var allPackages = referenceLoader.LoadPackageReferences(allProjects);
                 var package = allPackages.FirstOrDefault(p => p.PackageId == options.PackageId);
                 return package ?? throw new Exception($"Error: Package not referenced: {options.PackageId}");

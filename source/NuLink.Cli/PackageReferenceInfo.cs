@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using Buildalyzer;
-using Murphy.SymbolicLink;
-using NuLink.Cli.ProjectStyles;
 
 namespace NuLink.Cli
 {
@@ -15,7 +11,6 @@ namespace NuLink.Cli
             Version = version;
             RootFolderPath = rootFolderPath;
 
-            //StatusFilePath = Path.Combine(rootFolderPath, "nulink-status.txt"); 
             LibFolderPath = Path.Combine(rootFolderPath, libSubfolderPath);
             LibBackupFolderPath = Path.Combine(rootFolderPath, "nulink-backup.lib");
         }
@@ -24,7 +19,6 @@ namespace NuLink.Cli
         {
             if (Directory.Exists(LibFolderPath))
             {
-                //var statusFileContents = File.Exists(StatusFilePath) ? File.ReadAllText(StatusFilePath) : null;
                 var targetPath = TryGetTargetPath(LibFolderPath); 
                 
                 return new PackageStatusInfo(
@@ -45,7 +39,6 @@ namespace NuLink.Cli
         public string Version { get; }
         public string RootFolderPath { get; }
         public string LibFolderPath { get; }
-        //public string StatusFilePath { get; }
         public string LibBackupFolderPath { get; }
 
         public bool Equals(PackageReferenceInfo other)

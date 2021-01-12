@@ -9,12 +9,10 @@ namespace NuLink.Cli
             string packageId = null, 
             bool dryRun = false, 
             bool bareUI = false,
-            string localProjectPath = null,
-            string consumerObjPath = null)
+            string localProjectPath = null)
         {
             ConsumerProjectPath = consumerProjectPath;
             PackageId = packageId;
-            ConsumerObjPath = consumerObjPath;
             DryRun = dryRun;
             BareUI = bareUI;
             LocalProjectOutputPath = localProjectPath;
@@ -25,7 +23,6 @@ namespace NuLink.Cli
         public bool ProjectIsSolution { get; }
         public string PackageId { get; }
         public string LocalProjectOutputPath { get; }
-        public string ConsumerObjPath { get; }
         public bool DryRun { get; }
         public bool BareUI { get; }
     }

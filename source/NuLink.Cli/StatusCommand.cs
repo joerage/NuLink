@@ -18,7 +18,7 @@ namespace NuLink.Cli
                 $"Checking status of packages in {(options.ProjectIsSolution ? "solution" : "project")}: {options.ConsumerProjectPath}");
 
             var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
-            var referenceLoader = new PackageReferenceLoader(_ui, options.ConsumerObjPath);
+            var referenceLoader = new PackageReferenceLoader(_ui);
             var allPackages = referenceLoader.LoadPackageReferences(allProjects);
             var orderedPackages = allPackages.OrderBy(p => $"{p.PackageId}@{p.Version}");
 

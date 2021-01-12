@@ -16,7 +16,7 @@ namespace NuLink.Cli.ProjectStyles
             this.ProjectXml = projectXml;
         }
 
-        public abstract IEnumerable<PackageReferenceInfo> LoadPackageReferences();
+        public abstract IEnumerable<PackageReferenceInfo> LoadPackageReferences(ProjectAnalyzer project);
 
         protected IUserInterface UI { get; }
 
@@ -24,7 +24,7 @@ namespace NuLink.Cli.ProjectStyles
 
         protected XElement ProjectXml { get; }
 
-        public static ProjectStyle Create(IUserInterface ui, ProjectAnalyzer project, string consumerObjPath)
+        public static ProjectStyle Create(IUserInterface ui, ProjectAnalyzer project)
         {
             var projectXml = XElement.Load(project.ProjectFile.Path);
 
@@ -33,7 +33,7 @@ namespace NuLink.Cli.ProjectStyles
 
             if (isSdkStyle && !isOldStyle)
             {
-                return new SdkProjectStyle(ui, project, projectXml, consumerObjPath);
+                return new SdkProjectStyle(ui, project, projectXml);
             }
 
             if (isOldStyle && !isSdkStyle)

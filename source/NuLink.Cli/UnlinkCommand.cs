@@ -19,7 +19,7 @@ namespace NuLink.Cli
                 $"Checking package references in {(options.ProjectIsSolution ? "solution" : "project")}: {options.ConsumerProjectPath}");
 
             var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
-            var referenceLoader = new PackageReferenceLoader(_ui, options.ConsumerObjPath);
+            var referenceLoader = new PackageReferenceLoader(_ui);
             var allPackages = referenceLoader.LoadPackageReferences(allProjects);
 
             var requestedPackage = allPackages.FirstOrDefault(p => p.PackageId == options.PackageId);
