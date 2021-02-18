@@ -16,7 +16,7 @@ namespace NuLink.Cli
         public int Execute(NuLinkCommandOptions options)
         {
             _ui.ReportMedium(() =>
-                $"Checking package references in {(options.ProjectIsSolution ? "solution" : "project")}: {options.ConsumerProjectPath}");
+                $"Searching package reference in {(options.ProjectIsSolution ? "solution" : "project")}: {options.ConsumerProjectPath}");
 
             var requestedPackage = GetPackageInfo();
             var status = requestedPackage.CheckStatus();
@@ -33,8 +33,7 @@ namespace NuLink.Cli
             {
                 var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
                 var referenceLoader = new PackageReferenceLoader(_ui);
-                var allPackages = referenceLoader.LoadPackageReferences(allProjects);
-                var package = allPackages.FirstOrDefault(p => p.PackageId == options.PackageId);
+                var package = referenceLoader.LoadPackageReference(allProjects, options.PackageId);
                 return package ?? throw new Exception($"Error: Package not referenced: {options.PackageId}");
             }
             

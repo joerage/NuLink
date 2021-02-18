@@ -19,7 +19,7 @@ namespace NuLink.Cli
 
             var allProjects = new WorkspaceLoader().LoadProjects(options.ConsumerProjectPath, options.ProjectIsSolution);
             var referenceLoader = new PackageReferenceLoader(_ui);
-            var allPackages = referenceLoader.LoadPackageReferences(allProjects);
+            var allPackages = referenceLoader.LoadPackageReferences(allProjects, options.PackageId);
             var orderedPackages = allPackages.OrderBy(p => $"{p.PackageId}@{p.Version}");
 
             _ui.ReportHigh(() => $"{"--- package status ---"}", ConsoleColor.Yellow);

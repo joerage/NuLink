@@ -57,7 +57,7 @@ namespace NuLink.Tests.Acceptance
             PackageSolutionFolder(packageId),
             packageId);
         public override string PackageProjectFile(string packageId) =>
-            Path.Combine(PackageProjectFolder(packageId), $"{packageId}.csproj");
+            Path.Combine(PackageProjectFolder(packageId), @"bin\debug");
         public override string PackageIdSuffix => string.Empty;
         public override string PackagesRootFolder(string solutionFolder) => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -109,9 +109,8 @@ namespace NuLink.Tests.Acceptance
         public override string PackageProjectFolder(string packageId) => Path.Combine(
             PackageSolutionFolder(packageId),
             packageId);
-        public override string PackageProjectFile(string packageId) => Path.Combine(
-            PackageProjectFolder(packageId), 
-            $"{packageId}.csproj");
+        public override string PackageProjectFile(string packageId) =>
+             Path.Combine(PackageProjectFolder(packageId), @"bin\debug");
         public override string PackageIdSuffix => ".NetFx";
         public override string PackagesRootFolder(string solutionFolder) => Path.Combine(
             solutionFolder,

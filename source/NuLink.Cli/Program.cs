@@ -8,19 +8,6 @@ namespace NuLink.Cli
 {
     class Program
     {
-        /*
-         * Samples
-         * link   -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
-         *        -p Fidalgo.DurableTask 
-         *        -l C:\Users\jraj\source\repos\azure-lab-services\Packages\out\bin\Debug\Microsoft.LabServices.DurableTask 
-         *        
-         * unlink -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
-         *        -p Fidalgo.DurableTask 
-         *        
-         * status -c C:\Users\jraj\source\repos\azure-devtest-center\src\Fidalgo.sln 
-         *        -p Fidalgo.DurableTask 
-         */
-
         static int Main(string[] args)
         {
             var rootCommand = BuildCommandLine();
@@ -41,10 +28,6 @@ namespace NuLink.Cli
                 Name = "project-path",
                 Arity = ArgumentArity.ExactlyOne
             });
-            var dryRunOption = new Option(new[] { "--dry-run", "-d" }, HelpText.DryRunOption, new Argument<bool>() {
-                Name = "on/off",
-                Arity = ArgumentArity.ZeroOrOne
-            });
             var quietOption = new Option(new[] { "--quiet", "-q" }, HelpText.QuietOption, new Argument<bool>() {
                 Name = "on/off",
                 Arity = ArgumentArity.ZeroOrOne
@@ -59,13 +42,11 @@ namespace NuLink.Cli
                 new Command("link", HelpText.LinkCommand, handler: HandleLink()) {
                     consumerOption,
                     packageOption,
-                    localProjectOption,
-                    dryRunOption
+                    localProjectOption
                 },
                 new Command("unlink", HelpText.UnlinkCommand, handler: HandleUnlink()) {
                     consumerOption,
-                    packageOption,
-                    dryRunOption
+                    packageOption
                 }
             };
         }
@@ -200,9 +181,7 @@ namespace NuLink.Cli
             public const string PackageOption = 
                 "Package id (default: all packages in consumer project/solution)";
             public const string LocalProjectOption = 
-                "Full path to package .csproj in local file system";
-            public const string DryRunOption =
-                "If specified, list intended actions without executing them";
+                "Full path to output folder of package in local file system";
             public const string QuietOption = 
                 "If specified, suppresses all output except data (useful for scripting)";
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using System.Net.WebSockets;
 
 namespace NuLink.Cli
 {
