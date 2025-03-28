@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/NuLink.Cli/bin/Debug/net9.0/nulink.dll",
+            "args": [
+                "link",
+                "-p",
+                "Microsoft.DevTestLab.AzureAccess",
+                "-l",
+                "C:\\Users\\jraj\\source\\repos\\azure-lab-services\\Packages\\out\\bin\\Debug\\Microsoft.DevTestLab.AzureAccess"
+            ],
+            "cwd": "C:\\Users\\jraj\\source\\repos\\azure-devcenter\\src\\Core\\src",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
+}

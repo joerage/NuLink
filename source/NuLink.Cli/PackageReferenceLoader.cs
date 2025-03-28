@@ -15,12 +15,12 @@ namespace NuLink.Cli
             _ui = ui;
         }
 
-        public PackageReferenceInfo LoadPackageReference(IEnumerable<ProjectAnalyzer> projects, string packageId)
+        public PackageReferenceInfo LoadPackageReference(IEnumerable<IProjectAnalyzer> projects, string packageId)
         {
             return LoadPackageReferences(projects, packageId).FirstOrDefault(package => package.PackageId == packageId);
         }
 
-        public HashSet<PackageReferenceInfo> LoadPackageReferences(IEnumerable<ProjectAnalyzer> projects, string packageId)
+        public HashSet<PackageReferenceInfo> LoadPackageReferences(IEnumerable<IProjectAnalyzer> projects, string packageId)
         {
             var results = new HashSet<PackageReferenceInfo>();
 
@@ -42,28 +42,24 @@ namespace NuLink.Cli
             return results;
         }
 
-        private IEnumerable<PackageReferenceInfo> LoadPackageReferences(ProjectAnalyzer projectAnalyzer)
+        private IEnumerable<PackageReferenceInfo> LoadPackageReferences(IProjectAnalyzer projectAnalyzer)
         {
-            AnalyzerResults project = projectAnalyzer.Build();
+            var packagesRootFolder = GetPackagesRootFolder();
+            var packageReferences = new PackageLister(_ui).Analyze(projectAnalyzer);
 
             var packageReferenceInfo = new List<PackageReferenceInfo>();
-            var packagesRootFolder = GetPackagesRootFolder();
-
-            foreach (var result in project.Results)
+            packageReferenceInfo.AddRange(packageReferences.Select(packageReference =>
             {
-                packageReferenceInfo.AddRange(result.PackageReferences.Select(packageReference =>
-                {
-                    var packageId = packageReference.Key;
-                    var version = packageReference.Value.First().Value;
-                    var packageFolderPath = Path.Combine(packagesRootFolder, packageId.ToLower(), version.ToLower());
+                var packageId = packageReference.PackageId;
+                var version = packageReference.Version;
+                var packageFolderPath = Path.Combine(packagesRootFolder, packageId.ToLower(), version.ToLower());
 
-                    return new PackageReferenceInfo(
-                        packageId,
-                        version,
-                        rootFolderPath: packageFolderPath,
-                        libSubfolderPath: "lib");
-                }));
-            }
+                return new PackageReferenceInfo(
+                    packageId,
+                    version,
+                    rootFolderPath: packageFolderPath,
+                    libSubfolderPath: "lib");
+            }));
 
             return packageReferenceInfo;
         }
@@ -73,8 +69,6 @@ namespace NuLink.Cli
             var settings = Settings.LoadDefaultSettings(null);
             return SettingsUtility.GetGlobalPackagesFolder(settings);
         }
-
-
 
     }
 }

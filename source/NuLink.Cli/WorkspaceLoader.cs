@@ -5,7 +5,7 @@ namespace NuLink.Cli
 {
     public class WorkspaceLoader
     {
-        public IEnumerable<ProjectAnalyzer> LoadProjects(string filePath, bool isSolution)
+        public IEnumerable<IProjectAnalyzer> LoadProjects(string filePath, bool isSolution)
         {
             var analyzerManager = (isSolution 
                 ? new AnalyzerManager(filePath) 
